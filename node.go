@@ -2,6 +2,7 @@
 package harmonise
 
 // TODO For hashing look at https://github.com/stathat/consistent
+// TODO Read http://books.google.co.uk/books?id=aaIgarvycEYC&pg=PA96&lpg=PA96&dq=using+chord+for+VOip&source=bl&ots=enhbyhEV5H&sig=ci-QjW-8ERuOSMd4RBD3NgGzJww&hl=en&sa=X&ei=qKMxU9bcDYSrhQfNmoDABA&redir_esc=y#v=onepage&q=using%20chord%20for%20VOip&f=false
 import (
 	"fmt"
 	"net"
