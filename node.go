@@ -1,19 +1,39 @@
 // harmonise project harmonise.go
 package harmonise
 
+// TODO For hashing look at https://github.com/stathat/consistent
 import (
 	"fmt"
+	"net"
 )
 
+type NodeId struct {
+	ip net.IP
+}
+
 type Node struct {
-	Id                    string
+	Id                    NodeId
 	Sucessor, Predecessor *Node
 }
 
-func (node *Node) FindSucessor(n *Node) *Node {
-
+func FindClosestSucessor(nodeId NodeId) *Node {
+	//TODO Replace placeholder
+	return nil
 }
-func (node *Node) FindPredecessor(n *Node) *Node {
+
+func FindClosestPrecedingNode(nodeId NodeId) *Node {
+	//TODO Replace placeholder
+	return nil
+}
+func (node *Node) FindSucessor(nodeId NodeId) *Node {
+	if nodeId == node.Sucessor.Id || nodeId == node.Id {
+		return node.Sucessor
+	} else {
+		precedingNode := FindClosestPrecedingNode(nodeId)
+		return precedingNode.FindSucessor(nodeId)
+	}
+}
+func (node *Node) FindPredecessor(nodeId NodeId) *Node {
 
 }
 
@@ -43,12 +63,12 @@ func (node *Node) HasFailed() bool {
 }
 
 func Create() Node {
-	return Node{"", nil, nil}
+	return Node{NodeId{}, nil, nil}
 }
 
 func (node *Node) Join(n *Node) {
 	node.Predecessor = nil
-	node.Sucessor = n.FindSucessor(node)
+	node.Sucessor = n.FindSucessor(node.Id)
 
 }
 
