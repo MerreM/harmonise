@@ -5,11 +5,10 @@ package harmonise
 // TODO Read http://books.google.co.uk/books?id=aaIgarvycEYC&pg=PA96&lpg=PA96&dq=using+chord+for+VOip&source=bl&ots=enhbyhEV5H&sig=ci-QjW-8ERuOSMd4RBD3NgGzJww&hl=en&sa=X&ei=qKMxU9bcDYSrhQfNmoDABA&redir_esc=y#v=onepage&q=using%20chord%20for%20VOip&f=false
 import (
 	"fmt"
-	"net"
+	//"net"
 )
 
 type NodeId struct {
-	ip net.IP
 }
 
 type Node struct {
@@ -35,6 +34,14 @@ func (node *Node) FindSucessor(nodeId NodeId) *Node {
 	}
 }
 func (node *Node) FindPredecessor(nodeId NodeId) *Node {
+	pred := node.Predecessor
+	if pred == nil {
+		return node
+	} else if NodeId.Between(pred.Id, node.Id) {
+		return node
+	} else {
+		precedingNode := FindClosestPrecedingNode(node.Id)
+	}
 
 }
 

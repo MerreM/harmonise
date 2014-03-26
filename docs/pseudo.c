@@ -5,9 +5,8 @@ Node findPredecessor(key,n){
     else if (key.isInInterval(pred.ID, n.ID) //check if the key is between the pred and current node
         return n;
     else {
-        Node n'=getClosestPrecedingNode(key) //if not,track the closest preceding node and lookup again
-        return findPredecessor(key,n') // recursively
-        find the predecessor of node n'
+        Node n1=getClosestPrecedingNode(key) //if not,track the closest preceding node and lookup again
+        return findPredecessor(key,n1) // recursively  find the predecessor of node n1
     }
 }
 
@@ -18,8 +17,8 @@ Node findSuccessor(key,n){
     else if (key.isInInterval(n.ID, succ.ID) //check if the key is between the current node and successor's node
         return n;
     else {
-        Node n'=getClosestPrecedingNode(key) //if not,track the closest preceding node and lookup again
-        return findSuccessor(key,n') // recursively findthe predecessor of node n'
+        Node n1=getClosestPrecedingNode(key) //if not,track the closest preceding node and lookup again
+        return findSuccessor(key,n1) // recursively findthe predecessor of node n1
     }
 }
 
