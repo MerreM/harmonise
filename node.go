@@ -53,38 +53,61 @@ func betweenE(value, init, end int) bool {
 	}
 }
 
-type NodeId struct {
-	id int
-}
-
 type Node struct {
-	id     NodeId
-	finger map[int]Node
-	start  map[int]NodeId
+	id          int
+	finger      map[int]*Node
+	start       map[int]int
+	predecessor *Node
 }
 
-func CreateStartId(id, i int) NodeId {
+func CreateStartId(id, i int) int {
 	result := id + int(math.Pow(2, float64(i)))%int(math.Pow(2, float64(k)))
-	return NodeId{result}
+	return result
 }
-func CreateId(id int) NodeId {
-	return NodeId{id}
+func CreateId(id int) int {
+	return id
 }
 
 func Create(id int) Node {
-	startMap := make(map[int]NodeId)
+	startMap := make(map[int]int)
 	for i := 0; i < 10; i += 1 {
 		startMap[i] = CreateStartId(id, i)
 	}
-	return Node{
+	node := Node{
 		CreateId(id),
-		make(map[int]Node),
+		make(map[int]*Node),
 		startMap,
+		nil,
 	}
+	node.predecessor = *node
+	return node
 }
 
-func (node *Node) getSuccessor() Node {
+func (node *Node) GetSuccessor() *Node {
 	return node.finger[0]
+}
+
+func (node *Node) GetPredecessor() *Node {
+
+}
+
+func (node *Node) FindSuccessor(id int) *Node {
+	if betweenE(id, node.Predecessor.Id, node.id) {
+		return node
+	}
+	predecessor := node.FindPredecessor(id)
+	return predecessor.GetSuccessor()
+}
+
+func (node *Node) FindPredecessor(id int) {
+	if node.id == id {
+		return node.GetPredecessor()
+	}
+	n1 := node
+
+}
+func (node *Node) ClosestPrecedingFinger(id int) {
+
 }
 
 func main() {
