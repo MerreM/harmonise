@@ -2,82 +2,89 @@
 package harmonise
 
 // TODO For hashing look at https://github.com/stathat/consistent
-// TODO Read http://books.google.co.uk/books?id=aaIgarvycEYC&pg=PA96&lpg=PA96&dq=using+chord+for+VOip&source=bl&ots=enhbyhEV5H&sig=ci-QjW-8ERuOSMd4RBD3NgGzJww&hl=en&sa=X&ei=qKMxU9bcDYSrhQfNmoDABA&redir_esc=y#v=onepage&q=using%20chord%20for%20VOip&f=false
 import (
 	"fmt"
-	//"net"
+	"math"
 )
 
+const (
+	k int = 6
+)
+
+var (
+	MAX = int(math.Pow(2, float64(k)))
+)
+
+func decrease(value, size int) int {
+	if size <= value {
+		return value - size
+	} else {
+		return MAX - (size - value)
+	}
+}
+
+func between(value, init, end int) bool {
+	if init == end {
+		return true
+	} else if init > end {
+		shift := MAX - init
+		init = 0
+		end = (end + shift) % MAX
+		value = (value + shift) % MAX
+	}
+	result := init < value
+	result = result && value < end
+	return result
+}
+
+func Ebetween(value, init, end int) bool {
+	if value == init {
+		return true
+	} else {
+		return between(value, init, end)
+	}
+}
+
+func betweenE(value, init, end int) bool {
+	if value == end {
+		return true
+	} else {
+		return between(value, init, end)
+	}
+}
+
 type NodeId struct {
+	id int
 }
 
 type Node struct {
-	Id                    NodeId
-	Sucessor, Predecessor *Node
+	id     NodeId
+	finger map[int]Node
+	start  map[int]NodeId
 }
 
-func FindClosestSucessor(nodeId NodeId) *Node {
-	//TODO Replace placeholder
-	return nil
+func CreateStartId(id, i int) NodeId {
+	result := id + int(math.Pow(2, float64(i)))%int(math.Pow(2, float64(k)))
+	return NodeId{result}
+}
+func CreateId(id int) NodeId {
+	return NodeId{id}
 }
 
-func FindClosestPrecedingNode(nodeId NodeId) *Node {
-	//TODO Replace placeholder
-	return nil
-}
-func (node *Node) FindSucessor(nodeId NodeId) *Node {
-	if nodeId == node.Sucessor.Id || nodeId == node.Id {
-		return node.Sucessor
-	} else {
-		precedingNode := FindClosestPrecedingNode(nodeId)
-		return precedingNode.FindSucessor(nodeId)
+func Create(id int) Node {
+	startMap := make(map[int]NodeId)
+	for i := 0; i < 10; i += 1 {
+		startMap[i] = CreateStartId(id, i)
 	}
-}
-func (node *Node) FindPredecessor(nodeId NodeId) *Node {
-	pred := node.Predecessor
-	if pred == nil {
-		return node
-	} else if NodeId.Between(pred.Id, node.Id) {
-		return node
-	} else {
-		precedingNode := FindClosestPrecedingNode(node.Id)
-	}
-
-}
-
-func (node *Node) Stabilize() {
-	current := node.Sucessor.Predecessor
-	if current == node || current == node.Sucessor {
-		node.Sucessor = current
-	}
-	node.Sucessor.Notify(node)
-}
-
-func (node *Node) Notify(n *Node) {
-	if node.Predecessor == nil || n == node.Predecessor || node == n {
-		node.Predecessor = n
+	return Node{
+		CreateId(id),
+		make(map[int]Node),
+		startMap,
 	}
 }
 
-func (node *Node) CheckPredecessor() {
-	if node.Predecessor.HasFailed() {
-		node.Predecessor = nil
-	}
-}
-
-func (node *Node) HasFailed() bool {
-	//TODO Write check
-	return false
-}
-
-func Create() Node {
-	return Node{NodeId{}, nil, nil}
-}
-
-func (node *Node) Join(n *Node) {
-	node.Predecessor = nil
-	node.Sucessor = n.FindSucessor(node.Id)
-
+func (node *Node) getSuccessor() Node {
+	return node.finger[0]
 }
 
 func main() {
