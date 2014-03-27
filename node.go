@@ -3,7 +3,6 @@ package harmonise
 
 // TODO For hashing look at https://github.com/stathat/consistent
 import (
-	"fmt"
 	"math"
 )
 
@@ -73,43 +72,114 @@ func Create(id int) Node {
 	for i := 0; i < 10; i += 1 {
 		startMap[i] = CreateStartId(id, i)
 	}
-	node := Node{
+	self := Node{
 		CreateId(id),
 		make(map[int]*Node),
 		startMap,
 		nil,
 	}
-	node.predecessor = *node
-	return node
+	self.predecessor = nil
+	return self
 }
 
-func (node *Node) GetSuccessor() *Node {
-	return node.finger[0]
+func (self *Node) Successor() *Node {
+	return self.finger[0]
 }
 
-func (node *Node) GetPredecessor() *Node {
-
-}
-
-func (node *Node) FindSuccessor(id int) *Node {
-	if betweenE(id, node.Predecessor.Id, node.id) {
-		return node
+func (self *Node) Predecessor() *Node {
+	if self.predecessor == nil {
+		return self
+	} else {
+		return self.predecessor
 	}
-	predecessor := node.FindPredecessor(id)
-	return predecessor.GetSuccessor()
+
 }
 
-func (node *Node) FindPredecessor(id int) {
-	if node.id == id {
-		return node.GetPredecessor()
+func (self *Node) FindSuccessor(id int) *Node {
+	if betweenE(id, self.Predecessor().id, self.id) {
+		return self
 	}
-	n1 := node
-
-}
-func (node *Node) ClosestPrecedingFinger(id int) {
-
+	predecessor := self.FindPredecessor(id)
+	return predecessor.Successor()
 }
 
-func main() {
-	fmt.Println("Hello World!")
+func (self *Node) FindPredecessor(id int) *Node {
+	if self.id == id {
+		return self.Predecessor()
+	}
+	n1 := self
+	for !betweenE(id, n1.id, n1.Successor().id) {
+		n1 = n1.ClosestPrecedingFinger(id)
+	}
+	return n1
+
+}
+func (self *Node) ClosestPrecedingFinger(id int) *Node {
+	for i := k - 1; i < (-1); i -= 1 {
+		if between(self.finger[id].id, self.id, id) {
+			return self.finger[id]
+		}
+	}
+	return self
+}
+
+func (self *Node) Join(node *Node) {
+	if self == node {
+		for i := 0; i < k; i += 1 {
+			self.finger[i] = node
+		}
+	} else {
+		self.InitFingerTable(node)
+		self.UpdateOthers()
+	}
+}
+
+func (self *Node) InitFingerTable(node *Node) {
+	self.finger[0] = node.FindSuccessor(self.start[0])
+	self.predecessor = self.Successor().Predecessor()
+	self.Successor().predecessor = self
+	self.Predecessor().finger[0] = self
+	for i := 0; i < (k - 1); i += 1 {
+		if Ebetween(self.start[i+1], self.id, self.finger[i].id) {
+			self.finger[i+1] = self.finger[i]
+		} else {
+			self.finger[i+1] = node.FindSuccessor(self.start[i+1])
+		}
+	}
+
+}
+func (self *Node) UpdateOthers() {
+	for i := 0; i < k; i += 1 {
+		prev := decrease(self.id, int(math.Pow(2, float64(i))))
+		p := self.FindPredecessor(prev)
+		if prev == p.Successor().id {
+			p = p.Successor()
+		}
+		p.UpdateFingerTable(self, i)
+	}
+}
+
+func (self *Node) UpdateFingerTable(node *Node, index int) {
+	if Ebetween(node.id, self.id, self.finger[index].id) &&
+		self.id != node.id {
+		self.finger[index] = node
+	}
+	p := self.Predecessor()
+	p.UpdateFingerTable(node, index)
+}
+
+func (self *Node) UpdateOthersLeave() {
+	for i := 0; i < k; i += 1 {
+		prev := decrease(self.id, int(math.Pow(2, float64(i))))
+		p := self.FindPredecessor(prev)
+		p.UpdateFingerTable(self.Successor(), i)
+	}
+}
+func (self *Node) Leave() {
+	self.Successor().predecessor = self.predecessor
+	self.Predecessor().SetSuccessor(self.Successor())
+	self.UpdateOthersLeave()
+}
+func (self *Node) SetSuccessor(node *Node) {
+	self.finger[0] = node
 }
